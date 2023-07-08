@@ -1,0 +1,70 @@
+/* this * mean selecting all tags and by adding margin and padding 0 it will remove 
+all by default margin and pading  */
+*{
+    margin: 0;
+    padding: 0;
+}
+/* in order to get background color of any pic for forms you need to open than pic on google
+then inspect it and in it hex use eye drop option and take that to that pic it will give 
+you that value */
+body {
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    background-color: #344a73;
+}
+/* for achor color */
+.last_anchor {
+    color: #4ac1a3 ;
+}
+/* for achor color */
+.box-achor{
+    color: purple;
+}
+/* this is for outside box text control */
+.textalighn{
+    text-align: center;
+}
+/* this is for outside box text control */
+.text-white {
+    color: white;
+    margin-top: 10px;
+
+}
+/* for control of box of form */
+.container{
+    background-color: white;
+    color: black;
+    width: 480px;
+    margin: auto;
+    margin-top: 40px;
+    /* margin auto means in a block element if you add width of specific amount then it 
+    will automatically add left and right(x axis) margin in it */
+    padding: 20px;
+    border-radius: 6px;
+}
+/* for control of form label */
+.form-group label{
+    display: block;
+}
+/* for control of whole form  */
+.form-group{
+    margin: 12px;
+}
+/* for controling input */
+.form-control{
+    padding: 10px;
+    border-radius: 8px;
+    width: 450px;
+    border: 1.5px solid rgb(84, 83, 83);
+}
+
+.btnstyle{
+    padding: 10px;
+    background-color: #4ac1a3;
+    border: none;
+    border-radius: 5px;
+    display: block;
+    width: 472px;
+    color: white;
+    cursor: pointer;
+}
+

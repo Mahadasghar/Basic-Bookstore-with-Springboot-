@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookstore</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        async function fetchBooks() {
+            try {
+                const response = await fetch('/api/books');
+                const books = await response.json();
+                displayBooks(books);
+            } catch (error) {
+                console.error('Error fetching books:', error);
+            }
+        }
+
+        function displayBooks(books) {
+            const bookList = document.getElementById('book-list');
+            bookList.innerHTML = '';
+            books.forEach((book, index) => {
+                const li = document.createElement('li');
+                li.classList.add('book-item');
+                if (index >= 5) {
+                    li.classList.add('hidden');
+                }
+                li.innerHTML = `<strong>${book.title}</strong> by ${book.author} (ISBN: ${book.isbn})
+                <button onclick="deleteBook(${book.id})">Delete</button>
+                <button onclick="editBook(${book.id}, '${book.title}', '${book.author}', '${book.isbn}')">Edit</button>`;
+                bookList.appendChild(li);
+            });
+        }
+
+        async function addBook(event) {
+            event.preventDefault();
+            const title = document.getElementById('title').value.trim();
+            const author = document.getElementById('author').value.trim();
+            const isbn = document.getElementById('isbn').value.trim();
+
+            if (!title || !author || !isbn) {
+                alert('All fields are required!');
+                return;
+            }
+
+            // Check if book with same author or ISBN already exists
+            const existingBooksResponse = await fetch('/api/books');
+            const existingBooks = await existingBooksResponse.json();
+            const authorExists = existingBooks.some(book => book.author === author);
+            const isbnExists = existingBooks.some(book => book.isbn === isbn);
+            if (authorExists) {
+                alert('Book with same author already exists!');
+                return;
+            }
+            if (isbnExists) {
+                alert('Book with same ISBN already exists!');
+                return;
+            }
+
+            const book = { title, author, isbn };
+
+            try {
+                await fetch('/api/books', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(book),
+                });
+                resetForm();
+                fetchBooks();
+            } catch (error) {
+                console.error('Error adding book:', error);
+            }
+        }
+
+
+
+        async function deleteBook(id) {
+            try {
+                await fetch(`/api/books/${id}`, {
+                    method: 'DELETE',
+                });
+                fetchBooks();
+            } catch (error) {
+                console.error('Error deleting book:', error);
+            }
+        }
+
+        function editBook(id, title, author, isbn) {
+            document.getElementById('title').value = title;
+            document.getElementById('author').value = author;
+            document.getElementById('isbn').value = isbn;
+            document.getElementById('submit').value = "Update Book";
+            document.getElementById('submit').onclick = function(event) {
+                event.preventDefault();
+                updateBook(id);
+            };
+        }
+
+        async function updateBook(id) {
+            const title = document.getElementById('title').value.trim();
+            const author = document.getElementById('author').value.trim();
+            const isbn = document.getElementById('isbn').value.trim();
+
+            if (!title || !author || !isbn) {
+                alert('All fields are required!');
+                return;
+            }
+
+            const book = { title, author, isbn };
+
+            try {
+                await fetch(`/api/books/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(book),
+                });
+                resetForm();
+                fetchBooks();
+            } catch (error) {
+                console.error('Error updating book:', error);
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('title').value = '';
+            document.getElementById('author').value = '';
+            document.getElementById('isbn').value = '';
+            document.getElementById('submit').value = "Add Book";
+            document.getElementById('submit').onclick = addBook;
+        }
+
+        function searchBooks() {
+            const query = document.getElementById('search').value.toLowerCase();
+            const bookItems = document.querySelectorAll('#book-list li');
+            let visibleCount = 0;
+            bookItems.forEach(item => {
+                const title = item.querySelector('strong').textContent.toLowerCase();
+                const author = item.querySelector('strong').nextSibling.textContent.toLowerCase();
+                if (title.includes(query) || author.includes(query)) {
+                    item.style.display = '';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            bookItems.forEach((item, index) => {
+                if (index < visibleCount) {
+                    item.classList.remove('hidden');
+                } else if (!query) {
+                    item.classList.toggle('hidden', index >= 5);
+                }
+            });
+        }
+
+        window.onload = function() {
+            fetchBooks();
+            document.getElementById('add-book-form').addEventListener('submit', addBook);
+            document.getElementById('search').addEventListener('input', searchBooks);
+        }
+    </script>
+</head>
+<body>
+<h1>Bookstore</h1>
+<input type="text" id="search" placeholder="Search books by title or author">
+<h2>Books</h2>
+<div id="book-container">
+    <ul id="book-list"></ul>
+</div>
+<h2>Add a Book</h2>
+<form id="add-book-form">
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title"><br><br>
+    <label for="author">Author:</label>
+    <input type="text" id="author" name="author"><br><br>
+    <label for="isbn">ISBN:</label>
+    <input type="text" id="isbn" name="isbn"><br><br>
+    <input type="submit" id="submit" value="Add Book">
+</form>
+</body>
+</html>

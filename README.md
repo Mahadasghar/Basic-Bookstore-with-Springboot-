@@ -90,4 +90,3 @@ SELECT * FROM book;
 ---
 
 ### 🎉 Happy Coding!
-```
